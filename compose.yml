@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ghcr.io/code-elevate/backend
+    container_name: backend
+    env_file:
+      - .env
+    ports:
+      - 8080:${PORT}
+    restart: always
