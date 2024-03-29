@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 
 app.get("/", (_, res) =>
-  res.status(200).send({ message: "Welcome to CodeElevate API" })
+  res.status(200).send({ message: "Welcome to CodeElevate Backend API" })
 );
 
 require("./startup/config")();
