@@ -6,7 +6,7 @@ app.get("/", (_, res) =>
   res.status(200).send({ message: "Welcome to CodeElevate API" })
 );
 
-require("./startup/config");
+require("./startup/config")();
 require("./startup/cors")(app);
 require("./startup/db")();
 require("./startup/routes")(app);
