@@ -21,3 +21,5 @@ yarn.lock
 
 # Miscellaneous
 .DS_Store
+
+tmp/

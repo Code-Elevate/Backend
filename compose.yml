@@ -4,8 +4,9 @@ services:
   backend:
     image: ghcr.io/code-elevate/backend
     container_name: backend
+    restart: always
     env_file:
       - .env
     ports:
-      - 8080:${PORT}
-    restart: always
+      - 8080:8080
+
