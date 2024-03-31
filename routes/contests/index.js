@@ -52,7 +52,14 @@ router.get("/:id", async (req, res) => {
     endTime: contest.endTime,
     duration: contest.duration,
     organizers: contest.organizers,
-    ...(contest.status !== "upcoming" && { problems: contest.problems }),
+    ...(contest.status !== "upcoming" && {
+      problems: contest.problems.map((problem) => ({
+        id: problem._id,
+        title: problem.title,
+        difficulty: problem.difficulty,
+        tags: problem.tags,
+      })),
+    }),
   });
 });
 

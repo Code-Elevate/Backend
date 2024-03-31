@@ -20,7 +20,7 @@ router.post("/add", async (req, res) => {
       .send({ message: "Cannot add problems to a running or past contest." });
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user.id))
+  if (!contest.organizers.includes(req.user._id))
     return res.status(403).send({ message: "Access denied." });
 
   // If id is provided, check if it already exists
@@ -44,6 +44,7 @@ router.post("/add", async (req, res) => {
     difficulty: req.body.difficulty,
     tags: req.body.tags,
     testCases: req.body.testCases,
+    contest: req.params.contestId,
   });
   contest.addProblem(problem._id);
 
@@ -62,6 +63,7 @@ router.post("/add", async (req, res) => {
       difficulty: problem.difficulty,
       tags: problem.tags,
       testCases: problem.testCases,
+      contest: problem.contest,
     },
   });
 });
@@ -79,7 +81,7 @@ router.post("/update", async (req, res) => {
   if (!contest) return res.status(404).send({ message: "Contest not found." });
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user.id))
+  if (!contest.organizers.includes(req.user._id))
     return res.status(403).send({ message: "Access denied." });
 
   // Check if the contest has started
@@ -118,6 +120,7 @@ router.post("/update", async (req, res) => {
       difficulty: problem.difficulty,
       tags: problem.tags,
       testCases: problem.testCases,
+      contest: problem.contest,
     },
   });
 });

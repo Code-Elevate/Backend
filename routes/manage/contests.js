@@ -19,8 +19,8 @@ router.post("/add", async (req, res) => {
   }
 
   // Check if the user is an organizer
-  if (!req.body.organizers.includes(req.user.id))
-    req.body.organizers.push(req.user.id);
+  if (!req.body.organizers.includes(req.user._id))
+    req.body.organizers.push(req.user._id);
 
   const contest = new Contest({
     _id: req.body.id,
@@ -57,7 +57,7 @@ router.post("/update", async (req, res) => {
   if (!contest) return res.status(404).send({ message: "Contest not found." });
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user.id))
+  if (!contest.organizers.includes(req.user._id))
     return res.status(403).send({ message: "Access denied." });
 
   // Put the new data in the contest object
@@ -95,7 +95,7 @@ router.post("/delete", async (req, res) => {
   if (!contest) return res.status(404).send({ message: "Contest not found." });
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user.id))
+  if (!contest.organizers.includes(req.user._id))
     return res.status(403).send({ message: "Access denied." });
 
   // Check if contest has already started or ended

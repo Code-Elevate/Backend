@@ -16,7 +16,6 @@ const problemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   input: {
     type: String,
     required: true,
@@ -31,6 +30,7 @@ const problemSchema = new mongoose.Schema({
   samples: {
     type: [
       {
+        _id: false,
         input: String,
         output: String,
         explanation: String,
@@ -48,6 +48,7 @@ const problemSchema = new mongoose.Schema({
   testCases: {
     type: [
       {
+        _id: false,
         input: String,
         output: String,
       },
