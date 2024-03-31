@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeElevate API Documentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto Mono", monospace;
+        margin: 0;
+        padding: 0;
+        background-color: #0d0d0d;
+        color: #ffffff;
+        overflow-x: hidden;
+        font-size: 14px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #1a1a1a;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      h1,
+      h2,
+      h3 {
+        color: #4dfaff;
+      }
+      h2 {
+        margin-top: 20px;
+        border-bottom: 1px solid #4dfaff;
+        padding-bottom: 5px;
+      }
+      p {
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+      a {
+        color: #4dfaff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      a:hover {
+        color: #00bfff;
+      }
+      code {
+        background-color: #333333;
+        color: #e6e6e6;
+        padding: 2px 5px;
+        border-radius: 5px;
+        font-family: "Roboto Mono", monospace;
+      }
+      hr {
+        border: none;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CodeElevate API Documentation</h1>
+      <p>
+        Welcome to the CodeElevate API documentation page. Here you will find
+        information about the API routes and how to use them. Please refer to
+        the following links for more information:
+      </p>
+      <p id="mainDocumentation"></p>
+
+      <h2>API Routes</h2>
+      <div id="apiRoutes"></div>
+    </div>
+
+    <script>
+      // JSON object containing API routes and documentation links
+      const apiData = {
+        mainDocumentation: {
+          label: "CodeElevate API Documentation",
+          link: "https://documenter.getpostman.com/view/30434267/2sA35G4hfM",
+        },
+        routes: [
+          {
+            path: "/users",
+            description:
+              "Routes starting with <code>/users</code> are used to manage users and their authentication.",
+            link: "https://documenter.getpostman.com/view/30434267/2sA35G4hfM#e82db6b6-1be6-4e67-aa37-c74407d9317e",
+          },
+          {
+            path: "/manage",
+            description:
+              "Routes starting with <code>/manage</code> are used to manage contests and problems.",
+            link: "https://documenter.getpostman.com/view/30434267/2sA35G4hfM#f63844c8-0b5c-4beb-a1a4-34ac5787da95",
+          },
+          {
+            path: "/contests",
+            description:
+              "Routes starting with <code>/contests</code> are used to get information about contests.",
+            link: "https://documenter.getpostman.com/view/30434267/2sA35G4hfM#35789fbc-4ea0-47e0-8d0b-e5478a9f1fd8",
+          },
+          {
+            path: "/problems",
+            description:
+              "Routes starting with <code>/problems</code> are used to get information about problems.",
+            link: "https://documenter.getpostman.com/view/30434267/2sA35G4hfM#d47a10c2-2113-42cd-a10c-143fed3602ce",
+          },
+        ],
+      };
+
+      // Function to render main documentation link
+      function renderMainDocumentation() {
+        const mainDocElement = document.getElementById("mainDocumentation");
+        mainDocElement.innerHTML = `Main Documentation: <a href="${apiData.mainDocumentation.link}" target="_blank">${apiData.mainDocumentation.label}</a><hr />`;
+      }
+
+      // Function to render API routes
+      function renderAPIRoutes() {
+        const routesElement = document.getElementById("apiRoutes");
+        apiData.routes.forEach((route) => {
+          routesElement.innerHTML += `
+                    <h3><code>${route.path}</code></h3>
+                    <p>${route.description} <br /><a href="${route.link}" target="_blank">${route.path} API Documentation</a></p>
+                    <hr />
+                `;
+        });
+      }
+
+      // Call functions to render data
+      renderMainDocumentation();
+      renderAPIRoutes();
+    </script>
+  </body>
+</html>

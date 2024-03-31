@@ -2,9 +2,9 @@ const express = require("express");
 
 const app = express();
 
-app.get("/", (_, res) =>
-  res.status(200).send({ message: "Welcome to CodeElevate Backend API" })
-);
+app.get("/", (_, res) => {
+  res.status(200).sendFile("index.html", { root: __dirname });
+});
 
 require("./startup/config")();
 require("./startup/cors")(app);
