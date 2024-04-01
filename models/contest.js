@@ -202,9 +202,11 @@ contestSchema.pre("save", async function (next) {
     throw new Error("Start time must be before end time.");
 
   // Only allow start time in the future
-  const now = new Date();
-  if (this.startTime < now)
-    throw new Error("Start time must be in the future.");
+  if (!this.isNew || this.isModified("startTime")) {
+    const now = new Date();
+    if (this.startTime < now)
+      throw new Error("Start time must be in the future.");
+  }
 
   // Check if organizers are valid
   const organizerIds = this.organizers;
