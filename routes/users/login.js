@@ -1,4 +1,5 @@
 const express = require("express");
+const assert = require("assert");
 
 const User = require("../../models/user");
 
@@ -6,17 +7,15 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res
-      .status(400)
-      .send({ message: "Email and password are required." });
+
+  assert(email, "ERROR 400: Email is required.");
+  assert(password, "ERROR 400: Password is required.");
 
   let user = await User.findOne({ email });
-  if (!user) return res.status(400).send({ message: "User not registered." });
+  assert(user, "ERROR 400: User not registered.");
 
   const validPassword = await user.validatePassword(password);
-  if (!validPassword)
-    return res.status(400).send({ message: "Invalid email or password." });
+  assert(validPassword, "ERROR 400: Invalid email or password.");
 
   const token = user.generateAuthToken();
 

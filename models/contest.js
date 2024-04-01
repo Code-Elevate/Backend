@@ -27,6 +27,10 @@ const contestSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  maxTeamSize: {
+    type: Number,
+    default: 2,
+  },
   problems: {
     type: [
       {
@@ -51,27 +55,18 @@ const contestSchema = new mongoose.Schema({
       },
     ],
   },
-  submissions: {
-    type: [
-      {
-        type: String,
-        ref: "Submission",
+  penalty: {
+    type: {
+      _id: false,
+      isOn: {
+        type: Boolean,
+        default: false,
       },
-    ],
-  },
-  leaderboard: {
-    type: [
-      {
-        team: {
-          type: String,
-          ref: "Team",
-        },
-        score: {
-          type: Number,
-          default: 0,
-        },
+      value: {
+        type: Number,
+        default: 0,
       },
-    ],
+    },
   },
 });
 
@@ -123,9 +118,7 @@ contestSchema.statics.validate = function (contest) {
     description: Joi.string().required(),
     startTime: Joi.date().required(),
     endTime: Joi.date().required(),
-    problems: Joi.array().items(Joi.string()),
-    organizers: Joi.array().items(Joi.string()),
-    participants: Joi.array().items(Joi.string()),
+    maxTeamSize: Joi.number().min(1).max(6),
   });
 
   return schema.validate(contest);
@@ -160,9 +153,48 @@ contestSchema.methods.removeProblem = function (problemId) {
   this.problems = this.problems.filter((id) => id !== problemId);
 };
 
+contestSchema.methods.addParticipantTeam = function (teamId) {
+  this.participants.push(teamId);
+};
+
 contestSchema.virtual("duration").get(function () {
-  return ms(this.endTime - this.startTime, { long: true });
+  const date = new Date(this.endTime - this.startTime);
+  var str = "";
+  str +=
+    date.getUTCDate() - 1 !== 0
+      ? date.getUTCDate() - 1 + ` day${date.getUTCDate() - 1 > 1 ? "s" : ""} `
+      : "";
+  str +=
+    date.getUTCHours() !== 0
+      ? date.getUTCHours() + ` hr${date.getUTCHours() > 1 ? "s" : ""} `
+      : "";
+  str +=
+    date.getUTCMinutes() !== 0
+      ? date.getUTCMinutes() + ` min${date.getUTCMinutes() > 1 ? "s" : ""} `
+      : "";
+  str +=
+    date.getUTCSeconds() !== 0
+      ? date.getUTCSeconds() + ` sec${date.getUTCSeconds() > 1 ? "s" : ""} `
+      : "";
+  return str.trim();
 });
+
+contestSchema.methods.toResponseJSON = function () {
+  return {
+    id: this._id,
+    title: this.title,
+    description: this.description,
+    startTime: this.startTime,
+    endTime: this.endTime,
+    maxTeamSize: this.maxTeamSize,
+    duration: this.duration,
+    status: this.status,
+    problems: this.problems,
+    organizers: this.organizers,
+    participants: this.participants,
+    penalty: this.penalty,
+  };
+};
 
 contestSchema.pre("save", async function (next) {
   // Check if dates are valid

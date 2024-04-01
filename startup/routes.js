@@ -29,20 +29,26 @@ const manageRoutes = () => {
 
 const contestsRoutes = () => {
   const contests = require("../routes/contests");
+  const register = require("../routes/contests/register");
 
   const router = express.Router();
 
   router.use("/", contests);
+  router.use("/:contestId/register", auth, register);
 
   return router;
 };
 
 const problemsRoutes = () => {
   const problems = require("../routes/problems");
+  const execute = require("../routes/problems/execute");
+  const submissions = require("../routes/problems/submissions");
 
   const router = express.Router();
 
   router.use("/", problems);
+  router.use("/:problemId", execute);
+  router.use("/:problemId/submissions", submissions);
 
   return router;
 };

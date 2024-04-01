@@ -1,4 +1,5 @@
 const express = require("express");
+const assert = require("assert");
 
 const User = require("../../models/user");
 
@@ -6,11 +7,10 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { error } = User.validate(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+  assert(!error, error);
 
   let user = await User.findOne({ email: req.body.email });
-  if (user)
-    return res.status(400).send({ message: "User already registered." });
+  assert(!user, "ERROR 400: User already registered.");
 
   user = new User({
     _id: await User.generateId(req.body.email),

@@ -1,4 +1,5 @@
 const express = require("express");
+const assert = require("assert");
 
 const Contest = require("../../models/contest");
 
@@ -6,17 +7,19 @@ const router = express.Router();
 
 router.post("/add", async (req, res) => {
   const { error } = Contest.validate(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+  assert(!error, error);
 
   // If id is provided, check if it already exists
   if (req.body.id) {
     let existing = await Contest.findById(req.body.id);
-    if (existing)
-      return res.status(400).send({ message: "Contest id already exists." });
+    assert(!existing, "ERROR 400: Contest id already exists.");
   } else {
     // Generate id if not provided
     req.body.id = await Contest.generateId(req.body.title);
   }
+
+  let _penalty = 0;
+  if (req.body.penalty) _penalty = req.body.penalty;
 
   // Check if the user is an organizer
   if (!req.body.organizers.includes(req.user._id))
@@ -28,37 +31,38 @@ router.post("/add", async (req, res) => {
     description: req.body.description,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
+    ...(req.body.maxTeamSize && { maxTeamSize: req.body.maxTeamSize }),
     organizers: req.body.organizers,
     problems: [],
     participants: [],
+    penalty: {
+      isOn: _penalty !== 0,
+      value: _penalty,
+    },
   });
   await contest.save();
 
   res.status(201).send({
     message: "Contest created successfully.",
-    contest: {
-      id: contest._id,
-      title: contest.title,
-      description: contest.description,
-      startTime: contest.startTime,
-      endTime: contest.endTime,
-      problems: contest.problems,
-      organizers: contest.organizers,
-      participants: contest.participants,
-    },
+    contest: contest.toResponseJSON(),
   });
 });
 
 router.post("/update", async (req, res) => {
-  if (!req.body.id)
-    return res.status(400).send({ message: "Contest id is required." });
+  assert(req.body.id, "ERROR 400: Contest id is required.");
 
   let contest = await Contest.findById(req.body.id);
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(contest, "ERROR 404: Contest not found.");
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user._id))
-    return res.status(403).send({ message: "Access denied." });
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
+
+  let _penalty = 0;
+  if (req.body.penalty) _penalty = req.body.penalty;
+  else _penalty = contest.penalty.value;
 
   // Put the new data in the contest object
   contest = await Contest.findByIdAndUpdate(
@@ -68,44 +72,41 @@ router.post("/update", async (req, res) => {
       description: req.body.description,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
+      maxTeamSize: req.body.maxTeamSize,
       problems: req.body.problems,
       organizers: req.body.organizers,
       participants: req.body.participants,
+      penalty: {
+        isOn: _penalty !== 0,
+        value: _penalty,
+      },
     },
     { new: true }
   );
 
   res.status(200).send({
     message: "Contest updated successfully.",
-    contest: {
-      id: contest._id,
-      title: contest.title,
-      description: contest.description,
-      startTime: contest.startTime,
-      endTime: contest.endTime,
-      problems: contest.problems,
-      organizers: contest.organizers,
-      participants: contest.participants,
-    },
+    contest: contest.toResponseJSON(),
   });
 });
 
 router.post("/delete", async (req, res) => {
   let contest = await Contest.findById(req.body.id);
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(contest, "ERROR 404: Contest not found.");
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user._id))
-    return res.status(403).send({ message: "Access denied." });
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
 
   // Check if contest has already started or ended
-  if (contest.status !== "upcoming")
-    return res.status(400).send({
-      message: "Contest cannot be deleted after it has started.",
-    });
+  assert(
+    contest.status === "upcoming",
+    "ERROR 400: Contest cannot be deleted after it has started."
+  );
 
   await Contest.findByIdAndDelete(req.body.id);
-
   res.status(200).send({ message: "Contest deleted successfully." });
 });
 

@@ -1,5 +1,5 @@
 const express = require("express");
-const ms = require("ms");
+const assert = require("assert");
 
 const Contest = require("../../models/contest");
 
@@ -41,7 +41,7 @@ router.get("/:id", async (req, res) => {
     "problems",
     "_id title difficulty tags"
   );
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(contest, "ERROR 404: Contest not found.");
 
   res.status(200).send({
     id: contest._id,
@@ -50,8 +50,10 @@ router.get("/:id", async (req, res) => {
     status: contest.status,
     startTime: contest.startTime,
     endTime: contest.endTime,
+    maxTeamSize: contest.maxTeamSize,
     duration: contest.duration,
     organizers: contest.organizers,
+    penalty: contest.penalty,
     ...(contest.status !== "upcoming" && {
       problems: contest.problems.map((problem) => ({
         id: problem._id,

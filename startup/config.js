@@ -1,11 +1,11 @@
 require("dotenv").config();
+const assert = require("assert");
 
 module.exports = function () {
-  if (!process.env.JWT_PRIVATE_KEY) {
-    throw new Error("FATAL ERROR: JWT_PRIVATE_KEY is not defined.");
-  }
-
-  if (!process.env.DB_URL) {
-    throw new Error("FATAL ERROR: DB_URL is not defined.");
-  }
+  assert(process.env.DB_URL, "FATAL ERROR: DB_URL is not defined.");
+  assert(process.env.ENGINE_URL, "FATAL ERROR: ENGINE_URL is not defined.");
+  assert(
+    process.env.JWT_PRIVATE_KEY,
+    "FATAL ERROR: JWT_PRIVATE_KEY is not defined."
+  );
 };

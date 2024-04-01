@@ -1,4 +1,5 @@
 const express = require("express");
+const assert = require("assert");
 
 const Problem = require("../../models/problem");
 const Contest = require("../../models/contest");
@@ -7,27 +8,28 @@ const router = express.Router({ mergeParams: true });
 
 router.post("/add", async (req, res) => {
   const { error } = Problem.validate(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+  assert(!error, error);
 
   // Check if the contest exists
   let contest = await Contest.findById(req.params.contestId);
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(contest, "ERROR 404: Contest not found.");
 
   // Check if the contest has started
-  if (contest.status !== "upcoming")
-    return res
-      .status(400)
-      .send({ message: "Cannot add problems to a running or past contest." });
+  assert(
+    contest.status === "upcoming",
+    "ERROR 400: Cannot add problems to a running or past contest."
+  );
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user._id))
-    return res.status(403).send({ message: "Access denied." });
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
 
   // If id is provided, check if it already exists
   if (req.body.id) {
     let existing = await Problem.findById(req.body.id);
-    if (existing)
-      return res.status(400).send({ message: "Problem id already exists." });
+    assert(!existing, "ERROR 400: Problem id already exists.");
   } else {
     // Generate id if not provided
     req.body.id = await Problem.generateId(req.body.title);
@@ -44,6 +46,7 @@ router.post("/add", async (req, res) => {
     difficulty: req.body.difficulty,
     tags: req.body.tags,
     testCases: req.body.testCases,
+    score: req.body.score,
     contest: req.params.contestId,
   });
   contest.addProblem(problem._id);
@@ -63,32 +66,34 @@ router.post("/add", async (req, res) => {
       difficulty: problem.difficulty,
       tags: problem.tags,
       testCases: problem.testCases,
+      score: problem.score,
       contest: problem.contest,
     },
   });
 });
 
 router.post("/update", async (req, res) => {
-  if (!req.body.id)
-    return res.status(400).send({ message: "Problem id is required." });
+  assert(req.body.id, "ERROR 400: Problem id is required.");
 
   let [problem, contest] = await Promise.all([
     Problem.findById(req.body.id),
     Contest.findById(req.params.contestId),
   ]);
 
-  if (!problem) return res.status(404).send({ message: "Problem not found." });
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(problem, "ERROR 404: Problem not found.");
+  assert(contest, "ERROR 404: Contest not found.");
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user._id))
-    return res.status(403).send({ message: "Access denied." });
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
 
   // Check if the contest has started
-  if (contest.status !== "upcoming")
-    return res.status(400).send({
-      message: "Cannot update problems in a running or past contest.",
-    });
+  assert(
+    contest.status === "upcoming",
+    "ERROR 400: Cannot update problems in a running or past contest."
+  );
 
   // Put the new data in the problem object
   problem = await Problem.findByIdAndUpdate(
@@ -102,6 +107,7 @@ router.post("/update", async (req, res) => {
       samples: req.body.samples,
       difficulty: req.body.difficulty,
       tags: req.body.tags,
+      score: req.body.score,
       testCases: req.body.testCases,
     },
     { new: true }
@@ -120,32 +126,34 @@ router.post("/update", async (req, res) => {
       difficulty: problem.difficulty,
       tags: problem.tags,
       testCases: problem.testCases,
+      score: problem.score,
       contest: problem.contest,
     },
   });
 });
 
 router.post("/delete", async (req, res) => {
-  if (!req.body.id)
-    return res.status(400).send({ message: "Problem id is required." });
+  assert(req.body.id, "ERROR 400: Problem id is required.");
 
   let [problem, contest] = await Promise.all([
     Problem.findById(req.body.id),
     Contest.findById(req.params.contestId),
   ]);
 
-  if (!problem) return res.status(404).send({ message: "Problem not found." });
-  if (!contest) return res.status(404).send({ message: "Contest not found." });
+  assert(problem, "ERROR 404: Problem not found.");
+  assert(contest, "ERROR 404: Contest not found.");
 
   // Check if the user is an organizer
-  if (!contest.organizers.includes(req.user.id))
-    return res.status(403).send({ message: "Access denied." });
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
 
   // Check if the contest has started
-  if (contest.status !== "upcoming")
-    return res.status(400).send({
-      message: "Cannot delete problems in a running or past contest.",
-    });
+  assert(
+    contest.status === "upcoming",
+    "ERROR 400: Cannot delete problems in a running or past contest."
+  );
 
   contest.removeProblem(req.body.id);
   await Promise.all([Problem.findByIdAndDelete(req.body.id), contest.save()]);

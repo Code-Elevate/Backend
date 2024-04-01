@@ -55,6 +55,10 @@ const problemSchema = new mongoose.Schema({
     ],
     required: true,
   },
+  score: {
+    type: Number,
+    default: 100,
+  },
   contest: {
     type: String,
     ref: "Contest",
@@ -88,6 +92,7 @@ problemSchema.statics.validate = function (problem) {
         })
       )
       .required(),
+    score: Joi.number(),
     contest: Joi.string(),
   });
 

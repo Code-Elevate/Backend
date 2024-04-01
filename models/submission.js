@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
 const submissionSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true,
+  },
   problem: {
     type: String,
     ref: "Problem",
@@ -29,9 +35,18 @@ const submissionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  verdictMessage: {
+    type: String,
+    default: "",
+  },
   time: {
     type: Date,
     required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+    default: 0,
   },
 });
 
@@ -46,9 +61,24 @@ submissionSchema.statics.validate = function (submission) {
     }).required(),
     verdict: Joi.string().required(),
     time: Joi.date().required(),
+    score: Joi.number().required(),
   });
 
   return schema.validate(submission);
+};
+
+submissionSchema.methods.toResposeJSON = function () {
+  return {
+    id: this._id,
+    problem: this.problem,
+    team: this.team,
+    code: this.code,
+    runtime: this.runtime,
+    verdict: this.verdict,
+    verdictMessage: this.verdictMessage,
+    time: this.time,
+    score: this.score,
+  };
 };
 
 module.exports = mongoose.model("Submission", submissionSchema);

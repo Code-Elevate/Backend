@@ -1,15 +1,22 @@
 const express = require("express");
+const assert = require("assert");
 
 const Problem = require("../../models/problem");
+const { runtimes } = require("../../utils/execute");
 
 const router = express.Router();
 
 router.get("/:id", async (req, res) => {
-  let problem = await Problem.findById(req.params.id).populate("contest");
-  if (!problem) return res.status(404).send({ message: "Problem not found." });
+  let [problem, _runtimes] = await Promise.all([
+    Problem.findById(req.params.id).populate("contest"),
+    runtimes(),
+  ]);
 
-  if (problem.contest.status === "upcoming")
-    return res.status(403).send({ message: "Problem is not available yet." });
+  assert(problem, "ERROR 404: Problem not found.");
+  assert(
+    problem.contest.status !== "upcoming",
+    "ERROR 403: Problem is not available yet."
+  );
 
   res.status(200).send({
     id: problem._id,
@@ -21,6 +28,7 @@ router.get("/:id", async (req, res) => {
     samples: problem.samples,
     difficulty: problem.difficulty,
     tags: problem.tags,
+    score: problem.score,
     contest: {
       id: problem.contest._id,
       title: problem.contest.title,
@@ -30,6 +38,7 @@ router.get("/:id", async (req, res) => {
       duration: problem.contest.duration,
       organizers: problem.contest.organizers,
     },
+    runtimes: _runtimes,
   });
 });
 
