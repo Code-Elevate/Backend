@@ -67,7 +67,7 @@ submissionSchema.statics.validate = function (submission) {
   return schema.validate(submission);
 };
 
-submissionSchema.methods.toResposeJSON = function () {
+submissionSchema.methods.toResponseJSON = function () {
   return {
     id: this._id,
     problem: this.problem,
@@ -78,6 +78,17 @@ submissionSchema.methods.toResposeJSON = function () {
     verdictMessage: this.verdictMessage,
     time: this.time,
     score: this.score,
+  };
+};
+
+submissionSchema.methods.toMiniJSON = function () {
+  return {
+    id: this._id,
+    problem: this.problem,
+    team: this.team,
+    runtime: this.runtime,
+    verdict: this.verdict,
+    time: this.time,
   };
 };
 

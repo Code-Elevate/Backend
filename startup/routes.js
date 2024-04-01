@@ -30,11 +30,13 @@ const manageRoutes = () => {
 const contestsRoutes = () => {
   const contests = require("../routes/contests");
   const register = require("../routes/contests/register");
+  const leaderboard = require("../routes/contests/leaderboard");
 
   const router = express.Router();
 
   router.use("/", contests);
   router.use("/:contestId/register", auth, register);
+  router.use("/:contestId/leaderboard", leaderboard);
 
   return router;
 };

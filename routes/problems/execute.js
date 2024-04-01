@@ -102,7 +102,7 @@ router.post("/submit", auth, async (req, res) => {
     return res.status(200).send({
       status: results.status,
       message: verdictMessage,
-      submission: submission.toResposeJSON(),
+      submission: submission.toResponseJSON(),
     });
   }
 
@@ -147,7 +147,7 @@ router.post("/submit", auth, async (req, res) => {
     return res.status(200).send({
       status: "wrong_answer",
       message: `Output mismatch at test case ${mismatch + 1}.`,
-      submission: submission.toResposeJSON(),
+      submission: submission.toResponseJSON(),
     });
   }
 
@@ -220,7 +220,7 @@ router.post("/submit", auth, async (req, res) => {
   res.status(200).send({
     status: "success",
     message: "Accepted",
-    submission: submission.toResposeJSON(),
+    submission: submission.toResponseJSON(),
   });
 });
 
