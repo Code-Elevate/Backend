@@ -13,7 +13,7 @@ The API can be accessed at [https://code-elevate.gopalsaraf.com/api](https://cod
 
 ## API Documentation
 
-The API documentation can be found on [https://code-elevate.gopalsaraf.com/api/docs](https://code-elevate.gopalsaraf.com/api/docs) or [here](https://documenter.getpostman.com/view/30434267/2sA35G4hfM).
+The API documentation can be found on [https://code-elevate.gopalsaraf.com/docs](https://code-elevate.gopalsaraf.com/docs) or [here](https://documenter.getpostman.com/view/30434267/2sA35G4hfM).
 
 ### API Routes
 
