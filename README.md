@@ -2,6 +2,8 @@
 
 This repository contains the backend for the CodeElevate project. The backend is a RESTful API that is designed to be used by the frontend of the CodeElevate project.
 
+The API can be accessed at [https://code-elevate.gopalsaraf.com/api](https://code-elevate.gopalsaraf.com/api).
+
 ## Table of Contents
 
 - [API Documentation](#api-documentation)
@@ -11,7 +13,7 @@ This repository contains the backend for the CodeElevate project. The backend is
 
 ## API Documentation
 
-The API documentation can be found [here](https://documenter.getpostman.com/view/30434267/2sA35G4hfM).
+The API documentation can be found on [https://code-elevate.gopalsaraf.com/api/docs](https://code-elevate.gopalsaraf.com/api/docs) or [here](https://documenter.getpostman.com/view/30434267/2sA35G4hfM).
 
 ### API Routes
 

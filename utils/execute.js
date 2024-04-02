@@ -63,8 +63,7 @@ const execute = async (
   compile_timeout = null,
   run_timeout = null,
   compile_memory_limit = null,
-  run_memory_limit = null,
-  is_parrallel_execution = false
+  run_memory_limit = null
 ) => {
   assert(language, "Language is required.");
   assert(version, "Version is required.");
@@ -76,10 +75,13 @@ const execute = async (
     "stdin should be a string or an array of strings."
   );
 
+  // Ge PARRALEL_EXECUTIONS from environment
+  const parrallel_executions = process.env.PARRALEL_EXECUTIONS === "true";
+
   let result;
   let status = "success";
 
-  if (typeof stdin === "string" || is_parrallel_execution) {
+  if (typeof stdin === "string" || parrallel_executions) {
     result = await axios.post(executionsURL, {
       language,
       version,
