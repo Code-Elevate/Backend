@@ -29,6 +29,18 @@ router.post("/", async (req, res) => {
     "ERROR 400: Cannot register for a past contest."
   );
 
+  // If members contains emails of the user, replace it with the users id
+  const emails = members.filter((member) => member.includes("@"));
+  const emailToIdMap = {};
+
+  if (emails.length > 0) {
+    const users = await User.find({ email: { $in: emails } });
+    users.forEach((user) => {
+      emailToIdMap[user.email] = user._id;
+    });
+    members = members.map((member) => emailToIdMap[member] || member);
+  }
+
   // If members don't include the user, add the user
   if (!members.includes(user._id)) members.push(user._id);
 

@@ -2,6 +2,7 @@ const express = require("express");
 const assert = require("assert");
 
 const Contest = require("../../models/contest");
+const User = require("../../models/user");
 
 const router = express.Router();
 
@@ -20,6 +21,22 @@ router.post("/add", async (req, res) => {
 
   let _penalty = 0;
   if (req.body.penalty) _penalty = req.body.penalty;
+
+  // If members contains emails of the user, replace it with the users id
+  const emails = req.body.organizers.filter((organizer) =>
+    organizer.includes("@")
+  );
+  const emailToIdMap = {};
+
+  if (emails.length > 0) {
+    const users = await User.find({ email: { $in: emails } });
+    users.forEach((user) => {
+      emailToIdMap[user.email] = user._id;
+    });
+    req.body.organizers = req.body.organizers.map(
+      (organizer) => emailToIdMap[organizer] || organizer
+    );
+  }
 
   // Check if the user is an organizer
   if (!req.body.organizers.includes(req.user._id))
