@@ -93,7 +93,7 @@ teamSchema.statics.validate = function (team) {
     contest: Joi.string().required(),
   });
 
-  return schema.validate(team);
+  return schema.validate(team, { allowUnknown: true });
 };
 
 teamSchema.statics.findTeam = function (contestId, userId) {

@@ -126,7 +126,7 @@ contestSchema.statics.validate = function (contest) {
     }),
   });
 
-  return schema.validate(contest);
+  return schema.validate(contest, { allowUnknown: true });
 };
 
 contestSchema.statics.generateId = async function (title) {

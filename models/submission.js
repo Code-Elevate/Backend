@@ -64,7 +64,7 @@ submissionSchema.statics.validate = function (submission) {
     score: Joi.number().required(),
   });
 
-  return schema.validate(submission);
+  return schema.validate(submission, { allowUnknown: true });
 };
 
 submissionSchema.methods.toResponseJSON = function () {

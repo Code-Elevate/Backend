@@ -50,7 +50,7 @@ userSchema.statics.validate = function (user) {
     password: Joi.string().min(6).required(),
   });
 
-  return schema.validate(user);
+  return schema.validate(user, { allowUnknown: true });
 };
 
 userSchema.statics.generateId = async function (email) {

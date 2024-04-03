@@ -96,7 +96,7 @@ problemSchema.statics.validate = function (problem) {
     contest: Joi.string(),
   });
 
-  return schema.validate(problem);
+  return schema.validate(problem, { allowUnknown: true });
 };
 
 problemSchema.statics.generateId = async function (title) {
