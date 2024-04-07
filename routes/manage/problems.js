@@ -6,6 +6,37 @@ const Contest = require("../../models/contest");
 
 const router = express.Router({ mergeParams: true });
 
+router.get("/", async (req, res) => {
+  const problems = await Contest.findById(req.params.contestId).populate(
+    "problems"
+  );
+
+  assert(problems, "ERROR 404: Contest not found.");
+
+  // Check if the user is an organizer
+  assert(
+    problems.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
+
+  res.status(200).send({
+    problems: problems.problems.map((problem) => ({
+      id: problem._id,
+      title: problem.title,
+      statement: problem.statement,
+      input: problem.input,
+      output: problem.output,
+      constraints: problem.constraints,
+      samples: problem.samples,
+      difficulty: problem.difficulty,
+      tags: problem.tags,
+      testCases: problem.testCases,
+      score: problem.score,
+      contest: problem.contest,
+    })),
+  });
+});
+
 router.post("/add", async (req, res) => {
   const { error } = Problem.validate(req.body);
   assert(!error, error);
