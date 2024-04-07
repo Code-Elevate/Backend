@@ -6,6 +6,39 @@ const User = require("../../models/user");
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  const { running, upcoming, past } = await Contest.contestsByStatus(
+    req.user._id
+  );
+
+  res.status(200).send({
+    running: running.map((contest) => ({
+      id: contest._id,
+      title: contest.title,
+      description: contest.description,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
+      duration: contest.duration,
+    })),
+    upcoming: upcoming.map((contest) => ({
+      id: contest._id,
+      title: contest.title,
+      description: contest.description,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
+      duration: contest.duration,
+    })),
+    past: past.map((contest) => ({
+      id: contest._id,
+      title: contest.title,
+      description: contest.description,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
+      duration: contest.duration,
+    })),
+  });
+});
+
 router.post("/add", async (req, res) => {
   const { error } = Contest.validate(req.body);
   assert(!error, error);
@@ -82,8 +115,8 @@ router.post("/update", async (req, res) => {
   else _penalty = contest.penalty.value;
 
   // Put the new data in the contest object
-  contest = await Contest.findByIdAndUpdate(
-    req.body.id,
+  contest = await Contest.findOneAndUpdate(
+    { _id: req.body.id },
     {
       title: req.body.title,
       description: req.body.description,

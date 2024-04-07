@@ -49,20 +49,28 @@ router.post("/", async (req, res) => {
     members.map((member) => Team.findTeam(contest._id, member))
   );
   const userToTeamMap = {};
-  let registered = false;
-  // Run a index loop
+
   teams.forEach((team, index) => {
     if (team) {
       userToTeamMap[members[index]] = team._id;
-      registered = true;
     }
   });
 
-  if (registered)
-    return res.status(400).send({
-      message: "One of the members is already registered for the contest.",
-      user_team: userToTeamMap,
-    });
+  assert(
+    !userToTeamMap[user._id],
+    `ERROR 400: User is already registered for the contest in team: ${
+      userToTeamMap[user._id]
+    }`
+  );
+
+  assert(
+    Object.keys(userToTeamMap).length === 0,
+    `ERROR 400: Team member is already registered for the contest: ${Object.entries(
+      userToTeamMap
+    )
+      .map(([member, team]) => `${member} (${team})`)
+      .join(", ")}`
+  );
 
   assert(
     members.length <= contest.maxTeamSize,

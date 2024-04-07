@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const Joi = require("joi");
 
 const User = require("./user");
+const Contest = require("./contest");
 
 const teamSchema = new mongoose.Schema({
   _id: {

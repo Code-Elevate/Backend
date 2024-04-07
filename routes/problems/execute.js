@@ -14,7 +14,8 @@ router.post("/run", async (req, res) => {
 
   assert(language, "Language is required.");
   assert(code, "Code is required.");
-  assert(stdin, "stdin is required.");
+
+  stdin = stdin || "";
 
   if (!version) {
     let runtime = await getRuntime(language);

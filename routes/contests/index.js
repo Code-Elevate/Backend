@@ -2,13 +2,27 @@ const express = require("express");
 const assert = require("assert");
 
 const Contest = require("../../models/contest");
+const User = require("../../models/user");
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { running, upcoming, past } = await Contest.contestsByStatus();
+  const [{ running, upcoming, past }, users_running] = await Promise.all([
+    Contest.contestsByStatus(),
+    req.user && req.user._id ? Contest.findRunningOfUser(req.user._id) : null,
+  ]);
 
   res.status(200).send({
+    ...(users_running && {
+      users_running: users_running.map((contest) => ({
+        id: contest._id,
+        title: contest.title,
+        description: contest.description,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        duration: contest.duration,
+      })),
+    }),
     running: running.map((contest) => ({
       id: contest._id,
       title: contest.title,

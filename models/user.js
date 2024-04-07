@@ -75,7 +75,7 @@ userSchema.statics.generateId = async function (email) {
 };
 
 userSchema.methods.addTeam = function (teamId) {
-  this.teams.push(teamId);
+  if (!this.teams.includes(teamId)) this.teams.push(teamId);
 };
 
 userSchema.pre("save", async function () {

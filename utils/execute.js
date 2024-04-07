@@ -75,7 +75,6 @@ const execute = async (
     "stdin should be a string or an array of strings."
   );
 
-  // Ge PARRALEL_EXECUTIONS from environment
   const parrallel_executions = process.env.PARRALEL_EXECUTIONS === "true";
 
   let result;

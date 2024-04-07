@@ -1,16 +1,19 @@
 const express = require("express");
 
 const auth = require("../middleware/auth");
+const optionalAuth = require("../middleware/optional_auth");
 const error = require("../middleware/error");
 
 const usersRoutes = () => {
   const register = require("../routes/users/register");
   const login = require("../routes/users/login");
+  const history = require("../routes/users/history");
 
   const router = express.Router();
 
   router.use("/register", register);
   router.use("/login", login);
+  router.use("/history", auth, history);
 
   return router;
 };
@@ -34,7 +37,7 @@ const contestsRoutes = () => {
 
   const router = express.Router();
 
-  router.use("/", contests);
+  router.use("/", optionalAuth, contests);
   router.use("/:contestId/register", auth, register);
   router.use("/:contestId/leaderboard", leaderboard);
 
@@ -48,7 +51,7 @@ const problemsRoutes = () => {
 
   const router = express.Router();
 
-  router.use("/", problems);
+  router.use("/", optionalAuth, problems);
   router.use("/:problemId", execute);
   router.use("/:problemId/submissions", submissions);
 

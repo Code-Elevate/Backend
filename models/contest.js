@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
-const ms = require("ms");
 
 const User = require("./user");
+const Team = require("./team");
 
 const contestSchema = new mongoose.Schema({
   _id: {
@@ -68,7 +68,34 @@ const contestSchema = new mongoose.Schema({
       },
     },
   },
+  leaderboard: {
+    type: [
+      {
+        _id: false,
+        team: {
+          type: String,
+          ref: "Team",
+        },
+        score: Number,
+        rank: Number,
+      },
+    ],
+  },
 });
+
+const contestEventSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  endAt: {
+    type: Date,
+    expires: 0,
+  },
+});
+
+const ContestEvent = mongoose.model("ContestEvent", contestEventSchema);
 
 contestSchema.virtual("status").get(function () {
   const now = new Date();
@@ -95,21 +122,34 @@ contestSchema.statics.past = function () {
   );
 };
 
-contestSchema.statics.contestsByStatus = async function () {
-  let contests = await this.find();
-  let running = [];
-  let upcoming = [];
-  let past = [];
+contestSchema.statics.sortByStatus = function (contests) {
+  const running = [];
+  const upcoming = [];
+  const past = [];
 
   contests.forEach((contest) => {
-    let status = contest.status;
-
-    if (status === "running") running.push(contest);
-    else if (status === "upcoming") upcoming.push(contest);
+    if (contest.status === "running") running.push(contest);
+    else if (contest.status === "upcoming") upcoming.push(contest);
     else past.push(contest);
   });
 
   return { running, upcoming, past };
+};
+
+contestSchema.statics.contestsByStatus = async function (userId = null) {
+  let contests;
+  if (userId) {
+    contests = await this.find({ organizers: userId });
+  } else {
+    contests = await this.find();
+  }
+  return this.sortByStatus(contests);
+};
+
+contestSchema.statics.findRunningOfUser = async function (userId) {
+  const teams = await Team.find({ members: userId });
+  const contests = await this.find({ participants: { $in: teams } });
+  return contests.filter((contest) => contest.status === "running");
 };
 
 contestSchema.statics.validate = function (contest) {
@@ -151,7 +191,7 @@ contestSchema.statics.generateId = async function (title) {
 };
 
 contestSchema.methods.addProblem = function (problemId) {
-  this.problems.push(problemId);
+  if (!this.problems.includes(problemId)) this.problems.push(problemId);
 };
 
 contestSchema.methods.removeProblem = function (problemId) {
@@ -159,7 +199,7 @@ contestSchema.methods.removeProblem = function (problemId) {
 };
 
 contestSchema.methods.addParticipantTeam = function (teamId) {
-  this.participants.push(teamId);
+  if (!this.participants.includes(teamId)) this.participants.push(teamId);
 };
 
 contestSchema.virtual("duration").get(function () {
@@ -207,7 +247,7 @@ contestSchema.pre("save", async function (next) {
     throw new Error("Start time must be before end time.");
 
   // Only allow start time in the future
-  if (!this.isNew && this.isModified("startTime")) {
+  if (this.isModified("startTime")) {
     const now = new Date();
     if (this.startTime < now)
       throw new Error("Start time must be in the future.");
@@ -224,10 +264,78 @@ contestSchema.pre("save", async function (next) {
   );
 
   if (missingOrganizers.length > 0) {
-    throw new Error(`Organizers ${missingOrganizers.join(", ")} do not exist.`);
+    throw new Error(`Invalid organizers: ${missingOrganizers.join(", ")}`);
+  }
+
+  // Add contest event
+  if (this.isNew) {
+    const contestEvent = new ContestEvent({
+      _id: this._id,
+      endAt: this.endTime,
+    });
+    await contestEvent.save();
   }
 
   next();
 });
 
-module.exports = mongoose.model("Contest", contestSchema);
+contestSchema.pre("findOneAndUpdate", async function () {
+  const update = this.getUpdate();
+
+  if (update.startTime) {
+    const now = new Date();
+    if (Date.parse(update.startTime) < now)
+      throw new Error("Start time must be in the future.");
+  }
+
+  if (update.endTime) {
+    const contestEvent = await ContestEvent.findById(this.getQuery()._id);
+    contestEvent.endAt = update.endTime;
+    await contestEvent.save();
+  }
+
+  if (update.organizers) {
+    const organizerIds = update.organizers;
+    const existingOrganizers = await User.find({ _id: { $in: organizerIds } });
+    const existingOrganizerIds = existingOrganizers.map(
+      (organizer) => organizer._id
+    );
+    const missingOrganizers = organizerIds.filter(
+      (organizerId) => !existingOrganizerIds.includes(organizerId)
+    );
+
+    if (missingOrganizers.length > 0) {
+      throw new Error(`Invalid organizers: ${missingOrganizers.join(", ")}`);
+    }
+  }
+});
+
+contestSchema.methods.calculateLeaderboard = async function () {
+  const participants = await Team.find({ _id: { $in: this.participants } });
+
+  const leaderboard = participants.map((team) => ({
+    team: team._id,
+    score: team.score,
+  }));
+
+  leaderboard.sort((a, b) => b.score - a.score);
+
+  leaderboard.forEach((team, index) => {
+    team.rank = index + 1;
+  });
+
+  this.leaderboard = leaderboard;
+  await this.save();
+};
+
+const Contest = mongoose.model("Contest", contestSchema);
+
+ContestEvent.watch().on("change", async (change) => {
+  if (change.operationType === "delete") {
+    const contestId = change.documentKey._id;
+    const contest = await Contest.findById(contestId);
+    await contest.calculateLeaderboard();
+  }
+});
+
+module.exports = Contest;

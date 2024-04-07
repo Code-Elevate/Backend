@@ -13,7 +13,9 @@ module.exports = function (err, req, res, next) {
 
   // ERROR 404: Not Found
   if (err.message.startsWith("ERROR")) {
-    let [status, message] = err.message.split(":");
+    let [status, ...messages] = err.message.split(":");
+    let message = messages.join(":");
+
     try {
       status = parseInt(status.split(" ")[1].trim());
     } catch {
