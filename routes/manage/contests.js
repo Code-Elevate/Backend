@@ -19,6 +19,7 @@ router.get("/", async (req, res) => {
       startTime: contest.startTime,
       endTime: contest.endTime,
       duration: contest.duration,
+      organizers: contest.organizers,
     })),
     upcoming: upcoming.map((contest) => ({
       id: contest._id,
@@ -27,6 +28,7 @@ router.get("/", async (req, res) => {
       startTime: contest.startTime,
       endTime: contest.endTime,
       duration: contest.duration,
+      organizers: contest.organizers,
     })),
     past: past.map((contest) => ({
       id: contest._id,
@@ -35,6 +37,7 @@ router.get("/", async (req, res) => {
       startTime: contest.startTime,
       endTime: contest.endTime,
       duration: contest.duration,
+      organizers: contest.organizers,
     })),
   });
 });
