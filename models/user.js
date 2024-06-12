@@ -30,6 +30,14 @@ const userSchema = new mongoose.Schema({
       },
     ],
   },
+  registeredOn: {
+    type: Date,
+    default: Date.now,
+  },
+  lastLogin: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -41,6 +49,11 @@ userSchema.methods.generateAuthToken = function () {
 
 userSchema.methods.validatePassword = function (password) {
   return bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.updateLastLogin = async function () {
+  this.lastLogin = Date.now();
+  await this.save();
 };
 
 userSchema.statics.validate = function (user) {

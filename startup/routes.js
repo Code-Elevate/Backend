@@ -7,12 +7,14 @@ const error = require("../middleware/error");
 const usersRoutes = () => {
   const register = require("../routes/users/register");
   const login = require("../routes/users/login");
+  const details = require("../routes/users/details");
   const history = require("../routes/users/history");
 
   const router = express.Router();
 
   router.use("/register", register);
   router.use("/login", login);
+  router.use("/details", auth, details);
   router.use("/history", auth, history);
 
   return router;

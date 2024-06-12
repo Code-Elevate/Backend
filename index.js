@@ -7,7 +7,7 @@ app.get("/", (_, res) => {
 });
 
 require("./startup/config")();
-require("./startup/cors")(app);
+require("./startup/middlewares")(app);
 require("./startup/db")();
 require("./startup/routes")(app);
 

@@ -1,5 +1,6 @@
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const compression = require("compression");
 
 module.exports = function (app) {
   app.use(
@@ -11,4 +12,5 @@ module.exports = function (app) {
   );
 
   app.use(cookieParser());
+  app.use(compression());
 };

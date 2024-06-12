@@ -2,7 +2,6 @@ const express = require("express");
 const assert = require("assert");
 
 const Contest = require("../../models/contest");
-const User = require("../../models/user");
 
 const router = express.Router();
 

@@ -18,6 +18,7 @@ router.post("/", async (req, res) => {
   assert(validPassword, "ERROR 400: Invalid email or password.");
 
   const token = user.generateAuthToken();
+  user.updateLastLogin();
 
   res
     .status(200)
