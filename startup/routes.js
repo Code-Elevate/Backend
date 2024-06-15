@@ -9,6 +9,7 @@ const usersRoutes = () => {
   const login = require("../routes/users/login");
   const details = require("../routes/users/details");
   const history = require("../routes/users/history");
+  const search = require("../routes/users/search");
 
   const router = express.Router();
 
@@ -16,6 +17,7 @@ const usersRoutes = () => {
   router.use("/login", login);
   router.use("/details", auth, details);
   router.use("/history", auth, history);
+  router.use("/search", search);
 
   return router;
 };

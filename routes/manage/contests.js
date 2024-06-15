@@ -42,6 +42,32 @@ router.get("/", async (req, res) => {
   });
 });
 
+router.get("/:id", async (req, res) => {
+  let contest = await Contest.findById(req.params.id).populate(
+    "problems",
+    "_id title difficulty tags"
+  );
+  assert(contest, "ERROR 404: Contest not found.");
+
+  assert(
+    contest.organizers.includes(req.user._id),
+    "ERROR 403: Access denied."
+  );
+
+  res.status(200).send({
+    id: contest._id,
+    title: contest.title,
+    description: contest.description,
+    longDescription: contest.longDescription,
+    startTime: contest.startTime,
+    endTime: contest.endTime,
+    maxTeamSize: contest.maxTeamSize,
+    organizers: contest.organizers,
+    problems: contest.problems,
+    penalty: contest.penalty,
+  });
+});
+
 router.post("/add", async (req, res) => {
   const { error } = Contest.validate(req.body);
   assert(!error, error);
@@ -54,9 +80,6 @@ router.post("/add", async (req, res) => {
     // Generate id if not provided
     req.body.id = await Contest.generateId(req.body.title);
   }
-
-  let _penalty = 0;
-  if (req.body.penalty) _penalty = req.body.penalty;
 
   // If members contains emails of the user, replace it with the users id
   const emails = req.body.organizers.filter((organizer) =>
@@ -82,16 +105,14 @@ router.post("/add", async (req, res) => {
     _id: req.body.id,
     title: req.body.title,
     description: req.body.description,
+    longDescription: req.body.longDescription,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
     ...(req.body.maxTeamSize && { maxTeamSize: req.body.maxTeamSize }),
     organizers: req.body.organizers,
     problems: [],
     participants: [],
-    penalty: {
-      isOn: _penalty !== 0,
-      value: _penalty,
-    },
+    penalty: req.body.penalty,
   });
   await contest.save();
 
@@ -123,6 +144,7 @@ router.post("/update", async (req, res) => {
     {
       title: req.body.title,
       description: req.body.description,
+      longDescription: req.body.longDescription,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       maxTeamSize: req.body.maxTeamSize,

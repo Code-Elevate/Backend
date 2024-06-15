@@ -19,6 +19,18 @@ const contestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  longDescription: {
+    type: String,
+    required: true,
+    default: function () {
+      return JSON.stringify([
+        {
+          type: "p",
+          children: [{ text: this.description }],
+        },
+      ]);
+    },
+  },
   startTime: {
     type: Date,
     required: true,
@@ -156,6 +168,7 @@ contestSchema.statics.validate = function (contest) {
   const schema = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
+    longDescription: Joi.string().required(),
     startTime: Joi.date().required(),
     endTime: Joi.date().required(),
     maxTeamSize: Joi.number().min(1).max(6),
@@ -229,6 +242,7 @@ contestSchema.methods.toResponseJSON = function () {
     id: this._id,
     title: this.title,
     description: this.description,
+    longDescription: this.longDescription,
     startTime: this.startTime,
     endTime: this.endTime,
     maxTeamSize: this.maxTeamSize,

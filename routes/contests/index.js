@@ -64,6 +64,7 @@ router.get("/:id", async (req, res) => {
     id: contest._id,
     title: contest.title,
     description: contest.description,
+    longDescription: contest.longDescription,
     status: contest.status,
     startTime: contest.startTime,
     endTime: contest.endTime,
