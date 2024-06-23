@@ -134,9 +134,10 @@ router.post("/update", async (req, res) => {
     "ERROR 403: Access denied."
   );
 
-  let _penalty = 0;
-  if (req.body.penalty) _penalty = req.body.penalty;
-  else _penalty = contest.penalty.value;
+  assert(
+    contest.status === "upcoming",
+    `ERROR 400: ${contest.status} contests cannot be updated.`
+  );
 
   // Put the new data in the contest object
   contest = await Contest.findOneAndUpdate(
@@ -151,10 +152,7 @@ router.post("/update", async (req, res) => {
       problems: req.body.problems,
       organizers: req.body.organizers,
       participants: req.body.participants,
-      penalty: {
-        isOn: _penalty !== 0,
-        value: _penalty,
-      },
+      penalty: req.body.penalty,
     },
     { new: true }
   );

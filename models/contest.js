@@ -172,7 +172,7 @@ contestSchema.statics.validate = function (contest) {
     startTime: Joi.date().required(),
     endTime: Joi.date().required(),
     maxTeamSize: Joi.number().min(1).max(6),
-    organizers: Joi.array().items(Joi.string().required()),
+    organizers: Joi.array().items(Joi.string()),
     penalty: Joi.object({
       isOn: Joi.boolean(),
       value: Joi.number().min(0),
